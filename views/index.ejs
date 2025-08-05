@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Profiles with Eye Popup</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    background-color: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: black;
+    z-index: 0;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(2px 2px at 10% 10%, #66aaff, transparent),
+      radial-gradient(2px 2px at 25% 40%, #4488ff, transparent),
+      radial-gradient(2px 2px at 50% 50%, #99ccff, transparent),
+      radial-gradient(2px 2px at 70% 75%, #5599ff, transparent),
+      radial-gradient(2px 2px at 85% 20%, #66aaff, transparent),
+      radial-gradient(2px 2px at 90% 90%, #4488ff, transparent);
+    background-repeat: repeat;
+    background-size: 80px 80px;
+    animation: starMove 25s linear infinite;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+  }
+
+  body.stars-fade::after {
+    opacity: 0.2;
+  }
+
+  @keyframes starMove {
+    from {
+      background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    }
+    to {
+      background-position: 200px 200px, 150px 150px, 100px 100px, 50px 50px, 175px 175px, 125px 125px;
+    }
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    position: relative;
+    z-index: 10;
+    max-width: 1920px;
+    width: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
+  }
+
+  .profile-box {
+    display: flex;
+    align-items: center;
+    background: #111;
+    padding: 25px 35px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    width: 600px;
+    gap: 25px;
+    user-select: none;
+    position: relative;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 1s ease;
+    cursor: default;
+    flex-shrink: 0;
+  }
+
+  .avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid;
+    animation: rgbOutline 6s linear infinite;
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+  }
+
+  @keyframes rgbOutline {
+    0%   { border-color: rgb(255, 0, 0); box-shadow: 0 0 15px rgb(255, 0, 0); }
+    33%  { border-color: rgb(0, 255, 0); box-shadow: 0 0 15px rgb(0, 255, 0); }
+    66%  { border-color: rgb(0, 0, 255); box-shadow: 0 0 15px rgb(0, 0, 255); }
+    100% { border-color: rgb(255, 0, 0); box-shadow: 0 0 15px rgb(255, 0, 0); }
+  }
+
+  /* Göz butonu "Join Discord" yanında olacak */
+  .actions {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .eye-btn {
+    background: #0055ff;
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #3399ff;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+  }
+  .eye-btn:hover {
+    background-color: #003bb5;
+  }
+
+  .badges {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .badge {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    user-select: none;
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+  }
+
+  .badge.owner {
+    background: linear-gradient(45deg, #FF0000, #FF5500);
+    text-shadow: 0 0 8px #ff2200;
+  }
+
+  .badge.vip {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    text-shadow: 0 0 8px #ffaa00;
+  }
+
+  .badge.coowner {
+    background: linear-gradient(45deg, #00AAFF, #0055FF);
+    text-shadow: 0 0 8px #0077ff;
+  }
+
+  .badge.babapiro {
+    background: linear-gradient(45deg, #FF69B4, #FF1493);
+    text-shadow: 0 0 8px #ff1493;
+  }
+
+  .profile-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .username {
+    font-size: 2.5rem;
+    margin: 0 0 15px 0;
+    text-transform: lowercase;
+    animation: rgbText 6s linear infinite;
+    user-select: text;
+  }
+
+  @keyframes rgbText {
+    0%   { color: rgb(255, 0, 0); text-shadow: 0 0 10px rgb(255, 0, 0); }
+    33%  { color: rgb(0, 255, 0); text-shadow: 0 0 10px rgb(0, 255, 0); }
+    66%  { color: rgb(0, 0, 255); text-shadow: 0 0 10px rgb(0, 0, 255); }
+    100% { color: rgb(255, 0, 0); text-shadow: 0 0 10px rgb(255, 0, 0); }
+  }
+
+  .description {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: #aaa;
+    user-select: text;
+  }
+
+  .links {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .link-btn {
+    padding: 10px 18px;
+    background: #222;
+    border-radius: 10px;
+    color: #eee;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 0 5px rgba(255,255,255,0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .link-btn:hover {
+    background: #0055ff;
+    box-shadow: 0 0 12px #3399ff;
+    color: white;
+  }
+
+  .discord-link {
+    display: inline-block;
+    padding: 8px 18px;
+    background: #5865F2;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 0 15px rgba(88,101,242,0.6);
+    user-select: none;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    margin-top: auto;
+    width: fit-content;
+  }
+
+  .discord-link:hover {
+    background: #4752c4;
+    box-shadow: 0 0 25px rgba(71,82,196,0.9);
+  }
+
+  .discord-widget {
+    width: 350px;
+    height: 500px;
+    background: #222;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .discord-widget iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 15px;
+  }
+
+  /* Lanyard popup */
+  .lanyard-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 360px;
+    height: 150px;
+    background: #222;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #3399ff;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .lanyard-popup.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  .lanyard-popup img {
+    max-height: 140px;
+    border-radius: 12px;
+  }
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sol profil -->
+    <div class="profile-box" id="axrexProfile">
+      <div class="avatar-container">
+        <img src="https://i.hizliresim.com/1pliopc.jpg" alt="Axrex Avatar" class="avatar" />
+        <div class="badges">
+          <span class="badge owner">Owner</span>
+          <span class="badge vip">VIP</span>
+        </div>
+      </div>
+      <div class="profile-info">
+        <h1 class="username">axrex.dev</h1>
+        <p class="description">Full stack developer &amp; tech enthusiast. Always learning, always building.</p>
+        <div class="links">
+          <a href="https://github.com/AxerBa" class="link-btn" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.instagram.com/yigit.skyline" class="link-btn" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+        <div class="actions">
+          <a href="https://discord.gg/MitClans" class="discord-link" target="_blank" rel="noopener noreferrer">Join Discord</a>
+          <button class="eye-btn" data-user="axrex" title="Show Discord Status">👁️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ortadaki Discord widget -->
+    <div class="discord-widget">
+      <iframe
+        src="https://discord.com/widget?id=1261993060741545986&theme=dark"
+        width="350"
+        height="500"
+        allowtransparency="true"
+        frameborder="0"
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+      ></iframe>
+    </div>
+
+    <!-- Sağ profil -->
+    <div class="profile-box" id="jalseyProfile">
+      <div class="avatar-container">
+        <img src="https://i.hizliresim.com/1pliopc.jpg" alt="Jalsey Avatar" class="avatar" />
+        <div class="badges">
+          <span class="badge coowner">Co Owner</span>
+          <span class="badge babapiro">Babapiro</span>
+        </div>
+      </div>
+      <div class="profile-info">
+        <h1 class="username">jalsey.dev</h1>
+        <p class="description">Passionate coder &amp; community builder.</p>
+        <div class="links">
+          <a href="https://github.com/jalsey" class="link-btn" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://twitter.com/jalsey" class="link-btn" target="_blank" rel="noopener noreferrer">Twitter</a>
+        </div>
+        <div class="actions">
+          <a href="https://discord.gg/jalseydiscord" class="discord-link" target="_blank" rel="noopener noreferrer">Join Discord</a>
+          <button class="eye-btn" data-user="jalsey" title="Show Discord Status">👁️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lanyard popuplar gizli -->
+  <div id="lanyard-axrex" class="lanyard-popup" style="display:none;">
+    <a href="https://discord.com/users/1290185603849388093" target="_blank" rel="noopener noreferrer">
+      <img src="https://lanyard.cnrad.dev/api/1290185603849388093?showDisplayName=true&theme=dark" alt="Axrex Discord Status" />
+    </a>
+  </div>
+
+  <div id="lanyard-jalsey" class="lanyard-popup" style="display:none;">
+    <a href="https://discord.com/users/1142298562990972968" target="_blank" rel="noopener noreferrer">
+      <img src="https://lanyard.cnrad.dev/api/1142298562990972968?showDisplayName=true&theme=dark" alt="Jalsey Discord Status" />
+    </a>
+  </div>
+
+  <script>
+    const eyeButtons = document.querySelectorAll('.eye-btn');
+
+    let currentPopup = null;
+
+    eyeButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const user = btn.getAttribute('data-user');
+
+        if(currentPopup) {
+          if(currentPopup.id === `lanyard-${user}`) {
+            // Aynı popup açıksa kapat
+            currentPopup.classList.remove('show');
+            setTimeout(() => currentPopup.style.display = 'none', 300);
+            currentPopup = null;
+            return;
+          } else {
+            // Farklı popup açıksa önce kapat
+            currentPopup.classList.remove('show');
+            setTimeout(() => currentPopup.style.display = 'none', 300);
+            currentPopup = null;
+          }
+        }
+
+        const popupId = `lanyard-${user}`;
+        const popup = document.getElementById(popupId);
+        if(!popup) return;
+
+        popup.style.display = 'flex';
+        // Animasyonlu göster
+        setTimeout(() => {
+          popup.classList.add('show');
+        }, 10);
+
+        currentPopup = popup;
+      });
+    });
+
+    // Sayfa herhangi bir yere tıklanınca popup kapanır
+    document.addEventListener('click', () => {
+      if(currentPopup) {
+        currentPopup.classList.remove('show');
+        setTimeout(() => currentPopup.style.display = 'none', 300);
+        currentPopup = null;
+      }
+    });
+  </script>
+</body>
+</html>
